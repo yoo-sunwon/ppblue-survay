@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>산후 우울 설문지</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      text-align: center;
+    }
+    .lang-buttons {
+      text-align: center;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .lang-buttons button {
+      font-size: 1em;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+    .question {
+      margin: 20px 0;
+      padding: 10px;
+      border: 1px solid #eee;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    .question label.question-text {
+      font-weight: bold;
+      margin-bottom: 10px;
+      display: block;
+      font-size: 1.6em; /* 질문 글자 크기 조정 */
+    }
+    .question .options-wrapper {
+      background-color: #e0f2f7;
+      border: 1px solid #b3e5fc;
+      border-radius: 5px;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    /* Style for each individual option line */
+    .option-item {
+      display: flex; /* Use flexbox to align radio and label on the same line */
+      align-items: center; /* Vertically center radio button with text */
+      margin-bottom: 12px; /* Increased space between vertical options */
+    }
+    .option-item:last-child {
+      margin-bottom: 0; /* Remove margin from the last option */
+    }
+    .option-item input[type="radio"] {
+      margin-right: 10px; /* Increased space between radio button and label */
+      transform: scale(1.3); /* Make the radio button itself a bit larger */
+    }
+    .option-item label.radio-label {
+      cursor: pointer;
+      font-size: 1.44em; /* 답변 글자 크기를 질문(1.6em)의 약 90% (1.6 * 0.9 = 1.44em)로 설정 */
+      padding: 2px 0;
+      flex-grow: 1; /* Allow label to take available space */
+    }
+    .result {
+      font-weight: bold;
+      padding: 20px;
+      margin-top: 30px;
+      display: none;
+      border-radius: 8px;
+    }
+    .normal { background-color: #d4edda; color: #155724; }
+    .borderline { background-color: #fff3cd; color: #856404; }
+    .high { background-color: #f8d7da; color: #721c24; }
+    .urgent { background-color: #f5c6cb; color: #721c24; }
+    button[type="submit"] {
+      display: block;
+      margin: 30px auto 0;
+      font-size: 1.5em;
+      padding: 15px 30px;
+      cursor: pointer;
+      font-weight: bold;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="title">산후 우울 설문지</h1>
+  <div class="lang-buttons">
+    <button onclick="setLanguage('ko')">한국어</button>
+    <button onclick="setLanguage('ja')">日本語</button>
+    <button onclick="setLanguage('en')">English</button>
+  </div>
+
+  <form id="quiz-form">
+    <div id="questions"></div>
+    <button type="submit"></button>
+  </form>
+
+  <div id="result" class="result"></div>
+
+  <script>
+    const data = {
+      ko: {
+        title: "산후 우울 설문지",
+        submit: "결과보기",
+        questions: [
+          { text: "지난 7일 동안, 웃긴 일을 보면 웃을 수 있었나요?", scores: [3, 2, 1, 0] },
+          { text: "지난 7일 동안, 기대되거나 즐거운 일이 있었나요?", scores: [3, 2, 1, 0] },
+          { text: "지난 7일 동안, 일이 잘 안 됐을 때 괜히 내 잘못이라고 느낀 적이 있나요?", scores: [0, 1, 2, 3] },
+          { text: "지난 7일 동안, 특별한 이유 없이 불안하거나 걱정된 적이 있나요?", scores: [0, 1, 2, 3] },
+          { text: "지난 7일 동안, 이유 없이 겁이 나거나 가슴이 두근거린 적이 있나요?", scores: [0, 1, 2, 3] },
+          { text: "지난 7일 동안, 모든 일이 버겁고 감당하기 힘들게 느껴진 적이 있나요?", scores: [0, 1, 2, 3] },
+          { text: "지난 7일 동안, 기분이 안 좋아서 잠들기 힘들었던 적이 있나요?", scores: [0, 1, 2, 3] },
+          { text: "지난 7일 동안, 슬프거나 우울한 기분이 들었던 적이 있나요?", scores: [0, 1, 2, 3] },
+          { text: "지난 7일 동안, 너무 힘들어서 울었던 적이 있나요?", scores: [0, 1, 2, 3] },
+          { text: "지난 7일 동안, 나 자신을 다치게 하고 싶은 생각이 들었던 적이 있나요?", scores: [0, 1, 2, 3] }
+        ],
+        options: ["전혀 아니다", "가끔 그렇다", "자주 그렇다", "거의 항상 그렇다"],
+        results: {
+            normal: '정상 범위입니다.',
+            borderline: '경계 수준입니다. 주의가 필요합니다.',
+            high: '높은 위험 수준입니다. 상담이 필요합니다.',
+            urgent: '즉각적인 도움이 필요합니다!',
+            q10_warning: '10번 문제의 답변으로 보아 전문가 상담이 필요합니다.'
+        }
+      },
+      ja: {
+        title: "産後うつチェックリスト",
+        submit: "結果を見る",
+        questions: [
+          { text: "過去7日間で、面白いことに笑うことができましたか？", scores: [3, 2, 1, 0] },
+          { text: "過去7日間で、楽しみにしていることがありましたか？", scores: [3, 2, 1, 0] },
+          { text: "過去7日間で、物事がうまくいかない時に自分のせいだと感じましたか？", scores: [0, 1, 2, 3] },
+          { text: "過去7日間で、特に理由もなく不安や心配を感じましたか？", scores: [0, 1, 2, 3] },
+          { text: "過去7日間で、理由もなく怖くなったり動悸がしたことがありますか？", scores: [0, 1, 2, 3] },
+          { text: "過去7日間で、すべてが重く感じて対処できないと感じましたか？", scores: [0, 1, 2, 3] },
+          { text: "過去7日間で、気分が悪くて眠れなかったことがありますか？", scores: [0, 1, 2, 3] },
+          { text: "過去7日間で、悲しくなったり憂鬱な気分になったことがありますか？", scores: [0, 1, 2, 3] },
+          { text: "過去7日間で、辛くて泣いてしまったことがありますか？", scores: [0, 1, 2, 3] },
+          { text: "過去7日間で、自分を傷つけたいと思ったことがありますか？", scores: [0, 1, 2, 3] }
+        ],
+        options: ["全くなかった", "たまにあった", "よくあった", "ほとんどいつもそうだった"],
+        results: {
+            normal: '正常範囲です。',
+            borderline: '注意が必要なレベルです。',
+            high: 'リスクが高く、相談が必要です。',
+            urgent: '直ちに専門的な支援が必要です！',
+            q10_warning: '質問10の回答から、専門家への相談が必要です。'
+        }
+      },
+      en: {
+        title: "Postpartum Depression Questionnaire",
+        submit: "View Results",
+        questions: [
+          { text: "In the past 7 days, have you been able to laugh and see the funny side of things?", scores: [3, 2, 1, 0] },
+          { text: "In the past 7 days, have you looked forward with enjoyment to things?", scores: [3, 2, 1, 0] },
+          { text: "In the past 7 days, have you blamed yourself unnecessarily when things went wrong?", scores: [0, 1, 2, 3] },
+          { text: "In the past 7 days, have you been anxious or worried for no good reason?", scores: [0, 1, 2, 3] },
+          { text: "In the past 7 days, have you felt scared or panicky for no very good reason?", scores: [0, 1, 2, 3] },
+          { text: "In the past 7 days, have things been getting on top of you?", scores: [0, 1, 2, 3] },
+          { text: "In the past 7 days, have you been so unhappy that it has interfered with your sleep?", scores: [0, 1, 2, 3] },
+          { text: "In the past 7 days, have you felt sad or miserable?", scores: [0, 1, 2, 3] },
+          { text: "In the past 7 days, have you been so unhappy that you have been crying?", scores: [0, 1, 2, 3] },
+          { text: "In the past 7 days, have you had thoughts of harming yourself?", scores: [0, 1, 2, 3] }
+        ],
+        options: ["No, not at all", "Not very often", "Yes, sometimes", "Yes, most of the time"],
+        results: {
+            normal: 'Normal range.',
+            borderline: 'Borderline level. Attention is needed.',
+            high: 'High risk level. Counseling is recommended.',
+            urgent: 'Immediate help is needed!',
+            q10_warning: 'Based on your answer to question 10, professional counseling is needed.'
+        }
+      }
+    };
+
+    let currentLang = 'ko'; // Default language
+
+    function renderQuestions() {
+      const container = document.getElementById('questions');
+      container.innerHTML = '';
+      const qList = data[currentLang].questions;
+      const oList = data[currentLang].options;
+
+      qList.forEach((question, idx) => {
+        const div = document.createElement('div');
+        div.className = 'question';
+
+        // Question text with marker
+        const questionLabel = document.createElement('label');
+        questionLabel.className = 'question-text';
+        questionLabel.textContent = `${idx + 1}. ${question.text}`; // Marker
+        div.appendChild(questionLabel);
+
+        // Options container with light blue background
+        const optionsWrapper = document.createElement('div');
+        optionsWrapper.className = 'options-wrapper';
+
+        oList.forEach((optText, optIdx) => {
+          // Create a wrapper for each option (radio + label) to use flexbox
+          const optionItem = document.createElement('div');
+          optionItem.className = 'option-item';
+
+          const radioInput = document.createElement('input');
+          radioInput.type = 'radio';
+          radioInput.name = `q${idx}`;
+          radioInput.value = question.scores[optIdx];
+          radioInput.id = `q${idx}_opt${optIdx}`;
+
+          const radioLabel = document.createElement('label');
+          radioLabel.htmlFor = `q${idx}_opt${optIdx}`;
+          radioLabel.className = 'radio-label';
+          radioLabel.textContent = `${optText} (${question.scores[optIdx]}점)`;
+
+          optionItem.appendChild(radioInput);
+          optionItem.appendChild(radioLabel);
+          optionsWrapper.appendChild(optionItem); // Append the option item to the wrapper
+        });
+        div.appendChild(optionsWrapper);
+        container.appendChild(div);
+      });
+
+      document.querySelector('button[type="submit"]').textContent = data[currentLang].submit;
+      document.getElementById('title').textContent = data[currentLang].title;
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      renderQuestions();
+      document.getElementById('result').style.display = 'none'; // Hide result when changing language
+    }
+
+    document.getElementById('quiz-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      let total = 0;
+      const questionsData = data[currentLang].questions;
+      let q10_score = 0;
+
+      questionsData.forEach((q, idx) => {
+        const selectedOption = document.querySelector(`input[name="q${idx}"]:checked`);
+        if (selectedOption) {
+          const score = parseInt(selectedOption.value);
+          total += score;
+          if (idx === 9) {
+            q10_score = score;
+          }
+        }
+      });
+
+      const resultDiv = document.getElementById('result');
+      resultDiv.style.display = 'block';
+
+      const results = data[currentLang].results;
+      let finalResultMessage = '';
+
+      if (total <= 4) {
+        resultDiv.className = 'result normal';
+        finalResultMessage = results.normal;
+      } else if (total <= 8) {
+        resultDiv.className = 'result borderline';
+        finalResultMessage = results.borderline;
+      } else if (total <= 12) {
+        resultDiv.className = 'result high';
+        finalResultMessage = results.high;
+      } else {
+        resultDiv.className = 'result urgent';
+        finalResultMessage = results.urgent;
+      }
+
+      if (q10_score > 0) {
+        finalResultMessage += '<br>' + results.q10_warning;
+        resultDiv.className = 'result urgent';
+      }
+
+      resultDiv.innerHTML = finalResultMessage;
+    });
+
+    // Initial rendering
+    renderQuestions();
+  </script>
+</body>
+</html>
